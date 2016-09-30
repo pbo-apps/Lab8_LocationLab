@@ -23,7 +23,8 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	private static final String TAG = "Lab-Location";
 
 	// False if you don't have network access
-	public static boolean sHasNetwork = false;
+	// TODO - Set the state of this boolean from Network properties
+	public static boolean sHasNetwork = true;
 
 	private Location mLastLocationReading;
 	private PlaceViewAdapter mAdapter;
@@ -134,7 +135,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	// Callback method used by PlaceDownloaderTask
 	public void addNewPlace(PlaceRecord place) {
 	
-		// TODO - Attempt to add place to the adapter, considering the following cases
+		// DONE - Attempt to add place to the adapter, considering the following cases
 
 		// A PlaceBadge for this location already exists - issue a Toast message
 		// with the text - "You already have this location badge." Use the PlaceRecord 
@@ -150,24 +151,26 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 		// Do not add the PlaceBadge to the adapter
 		
 		// Otherwise - add the PlaceBadge to the adapter
-		
-        // FIXME - Remove this toast message once the above TODO is implemented
-        Toast.makeText(getApplicationContext(), "Tried to add a location record", Toast.LENGTH_LONG).show();
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+		if (place == null) {
+
+			// TODO - Don't hardcode the string here
+			Toast.makeText(getApplicationContext(), "PlaceBadge could not be acquired", Toast.LENGTH_LONG).show();
+
+		} else if (mAdapter.intersects(place.getLocation())) {
+
+			Toast.makeText(getApplicationContext(), R.string.duplicate_location_string, Toast.LENGTH_LONG).show();
+
+		} else if (place.getCountryName() == null || place.getCountryName().isEmpty()) {
+
+			Toast.makeText(getApplicationContext(), R.string.no_country_string, Toast.LENGTH_LONG).show();
+
+		} else {
+
+			mAdapter.add(place);
+
+		}
+
 	}
 
 	// LocationListener methods

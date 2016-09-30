@@ -16,6 +16,8 @@ import android.view.View.OnClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import static android.os.SystemClock.elapsedRealtimeNanos;
+
 public class PlaceViewActivity extends ListActivity implements LocationListener {
 	private static final long FIVE_MINS = 5 * 60 * 1000;
 	private static final String TAG = "Lab-Location";
@@ -47,7 +49,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		ListView placesListView = getListView();
 
-		// TODO - add a footerView to the ListView
+		// DONE - add a footerView to the ListView
 		// You can use footer_view.xml to define the footer
 
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -107,13 +109,19 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
 		startMockLocationManager();
 
-		// TODO - Check NETWORK_PROVIDER for an existing location reading.
+		// TODO - Remove this setting of a dummy location
+		mMockLocationProvider.pushLocation(37.422, -122.084);
+
+		// DONE - Check NETWORK_PROVIDER for an existing location reading.
+		Location lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
 		// Only keep this last reading if it is fresh - less than 5 minutes old
+		if (lastKnownLocation != null && isFresh(lastKnownLocation)) {
+			mLastLocationReading = lastKnownLocation;
+		}
 
 
-        
-        
-        mLastLocationReading = null;
+
 
 
 		// TODO - register to receive location updates from NETWORK_PROVIDER
@@ -209,9 +217,17 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 		// not implemented
 	}
 
+	// Commenting out this method as I don't want to use it but it was provided with the lab skeleton code.
+	// According to the documentation, currentTimeMillis and getTime are unreliable for measuring elapsed
+	// time, as they use UTC time irrespective of time zone. I've therefore written the isFresh method instead.
 	// Returns age of location in milliseconds
-	private long ageInMilliseconds(Location location) {
-		return System.currentTimeMillis() - location.getTime();
+//	private long ageInMilliseconds(Location location) {
+//		return System.currentTimeMillis() - location.getTime();
+//	}
+
+	// Helper method to determine if a location reading is fresh or not
+	private boolean isFresh(Location location) {
+		return elapsedRealtimeNanos() - location.getElapsedRealtimeNanos() < FIVE_MINS * 1000000;
 	}
 
 	@Override

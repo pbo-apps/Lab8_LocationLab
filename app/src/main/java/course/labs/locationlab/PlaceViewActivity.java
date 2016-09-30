@@ -109,9 +109,6 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
 		startMockLocationManager();
 
-		// TODO - Remove this setting of a dummy location
-		mMockLocationProvider.pushLocation(37.422, -122.084);
-
 		// DONE - Check NETWORK_PROVIDER for an existing location reading.
 		Location lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
@@ -178,7 +175,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	@Override
 	public void onLocationChanged(Location currentLocation) {
 
-		// TODO - Update location considering the following cases.
+		// DONE - Update location considering the following cases.
 		// 1) If there is no last location, set the last location to the current
 		// location.
 		// 2) If the current location is older than the last location, ignore
@@ -186,13 +183,11 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 		// 3) If the current location is newer than the last locations, keep the
 		// current location.
 
-        
-        
-        
-        
-        
-        
-			mLastLocationReading = null;
+		if (mLastLocationReading == null ||
+				currentLocation.getElapsedRealtimeNanos() >= mLastLocationReading.getElapsedRealtimeNanos()) {
+			mLastLocationReading = currentLocation;
+		}
+
 	}
 
 	@Override

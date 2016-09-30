@@ -31,10 +31,10 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	private boolean mMockLocationOn = false;
 
 	// default minimum time between new readings
-	private long mMinTime = 5000;
+	private final long mMinTime = 5000;
 
 	// default minimum distance between old and new readings.
-	private float mMinDistance = 1000.0f;
+	private final float mMinDistance = 1000.0f;
 
 	// A fake location provider used for testing
 	private MockLocationProvider mMockLocationProvider;
@@ -120,23 +120,16 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 			mLastLocationReading = lastKnownLocation;
 		}
 
-
-
-
-
-		// TODO - register to receive location updates from NETWORK_PROVIDER
-
-
-        
+		// DONE - register to receive location updates from NETWORK_PROVIDER
+		mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, mMinTime, mMinDistance, this);
         
 	}
 
 	@Override
 	protected void onPause() {
 
-		// TODO - unregister for location updates
-
-        
+		// DONE - unregister for location updates
+		mLocationManager.removeUpdates(this);
         
 		shutdownMockLocationManager();
 		super.onPause();

@@ -55,7 +55,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 		View footerView = inflater.inflate(R.layout.footer_view, placesListView, false);
 
-		// TODO - footerView must respond to user clicks, handling 3 cases:
+		// DONE - footerView must respond to user clicks, handling 3 cases:
 
 		// There is no current location - response is up to you. The best
 		// solution is to always disable the footerView until you have a
@@ -74,25 +74,24 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 		footerView.setOnClickListener(new OnClickListener() {
 
 			@Override
-			public void onClick(View arg0) {
+			public void onClick(View view) {
 
+				if (mLastLocationReading == null) {
 
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
+					// TODO - Handle the no location case better by disabling the footer view if the location is null
+					Toast.makeText(view.getContext(), R.string.no_country_string, Toast.LENGTH_LONG).show();
+
+				} else if (mAdapter.intersects(mLastLocationReading)) {
+
+					Toast.makeText(view.getContext(), R.string.duplicate_location_string, Toast.LENGTH_LONG).show();
+
+				} else {
+
+					PlaceDownloaderTask downloader = new PlaceDownloaderTask((PlaceViewActivity) view.getContext(), sHasNetwork);
+					downloader.execute(mLastLocationReading);
+
+				}
+
 			}
 
 		});
@@ -152,8 +151,8 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 		
 		// Otherwise - add the PlaceBadge to the adapter
 		
-
-        
+        // FIXME - Remove this toast message once the above TODO is implemented
+        Toast.makeText(getApplicationContext(), "Tried to add a location record", Toast.LENGTH_LONG).show();
         
         
         

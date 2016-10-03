@@ -154,8 +154,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
 		if (place == null) {
 
-			// TODO - Don't hardcode the string here
-			Toast.makeText(getApplicationContext(), "PlaceBadge could not be acquired", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), R.string.place_badge_unavailable, Toast.LENGTH_LONG).show();
 
 		} else if (mAdapter.intersects(place.getLocation())) {
 

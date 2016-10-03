@@ -14,5 +14,6 @@
     <string name="duplicate_location_string">You already have this location badge</string>
     <string name="flag_image_desc_string">Flag Image</string>
     <string name="place_badge_unavailable">PlaceBadge could not be acquired</string>
+    <string name="location_not_set">Device location not yet set</string>
 
 </resources>

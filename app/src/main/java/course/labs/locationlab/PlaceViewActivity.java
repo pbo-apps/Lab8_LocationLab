@@ -79,8 +79,8 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
 				if (mLastLocationReading == null) {
 
-					// TODO - Handle the no location case better by disabling the footer view if the location is null
-					Toast.makeText(view.getContext(), R.string.no_country_string, Toast.LENGTH_LONG).show();
+					// Let user know why they can't yet get the place badge
+					Toast.makeText(view.getContext(), R.string.location_not_set, Toast.LENGTH_LONG).show();
 
 				} else if (mAdapter.intersects(mLastLocationReading)) {
 

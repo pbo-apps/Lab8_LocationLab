@@ -5,8 +5,9 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,13 +23,13 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	private static final long FIVE_MINS = 5 * 60 * 1000;
 	private static final String TAG = "Lab-Location";
 
-	// False if you don't have network access
-	// TODO - Set the state of this boolean from Network properties
-	public static boolean sHasNetwork = true;
+	// False if you don't want to use network access
+	public static boolean useNetwork = true;
 
 	private Location mLastLocationReading;
 	private PlaceViewAdapter mAdapter;
 	private LocationManager mLocationManager;
+	private ConnectivityManager mConnectivityManager;
 	private boolean mMockLocationOn = false;
 
 	// default minimum time between new readings
@@ -44,10 +45,15 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// Set up the app's user interface. This class is a ListActivity,
-        // so it has its own ListView. ListView's adapter should be a PlaceViewAdapter
-
+		// Set up location manager to let us monitor changes in location
 		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+		// Set up connectivity manager to track changes in network status
+		mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+		// Set up the app's user interface. This class is a ListActivity,
+		// so it has its own ListView. ListView's adapter should be a PlaceViewAdapter
+
 		ListView placesListView = getListView();
 
 		// DONE - add a footerView to the ListView
@@ -88,7 +94,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
 				} else {
 
-					PlaceDownloaderTask downloader = new PlaceDownloaderTask((PlaceViewActivity) view.getContext(), sHasNetwork);
+					PlaceDownloaderTask downloader = new PlaceDownloaderTask((PlaceViewActivity) view.getContext(), deviceHasNetwork());
 					downloader.execute(mLastLocationReading);
 
 				}
@@ -217,6 +223,19 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	// Helper method to determine if a location reading is fresh or not
 	private boolean isFresh(Location location) {
 		return elapsedRealtimeNanos() - location.getElapsedRealtimeNanos() < FIVE_MINS * 1000000;
+	}
+
+	// Helper method to determine whether or not we are currently connected to the internet
+    // Currently only uses Wifi, as downloading little flags over mobile data seems frivolous
+	private boolean deviceHasNetwork() {
+        if (!useNetwork)
+            return false;
+
+		NetworkInfo activeNetwork = mConnectivityManager.getActiveNetworkInfo();
+
+		return activeNetwork != null &&
+				activeNetwork.isConnectedOrConnecting() &&
+                activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
 	}
 
 	@Override

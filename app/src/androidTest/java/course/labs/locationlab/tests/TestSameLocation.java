@@ -17,7 +17,7 @@ public class TestSameLocation extends ActivityInstrumentationTestCase2<PlaceView
 
   	public void setUp() throws Exception {
 		solo = new Solo(getInstrumentation(), getActivity());
-		PlaceViewActivity.sHasNetwork = false;
+		PlaceViewActivity.useNetwork = false;
   	}
   
    	@Override

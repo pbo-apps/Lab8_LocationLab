@@ -1,6 +1,5 @@
 package course.labs.locationlab;
 
-import android.app.ListActivity;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -8,18 +7,21 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import static android.os.SystemClock.elapsedRealtimeNanos;
 
-public class PlaceViewActivity extends ListActivity implements LocationListener {
+public class PlaceViewFragment extends ListFragment implements LocationListener {
 	private static final long FIVE_MINS = 5 * 60 * 1000;
 	private static final String TAG = "Lab-Location";
 
@@ -42,25 +44,30 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	private MockLocationProvider mMockLocationProvider;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		// Set up location manager to let us monitor changes in location
-		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		mLocationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
 		// Set up connectivity manager to track changes in network status
-		mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		mConnectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-		// Set up the app's user interface. This class is a ListActivity,
-		// so it has its own ListView. ListView's adapter should be a PlaceViewAdapter
+	}
+
+	@Override
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+        // Set up the app's user interface. This class is a ListFragment,
+        // so it has its own ListView. ListView's adapter should be a PlaceViewAdapter
 
 		ListView placesListView = getListView();
 
 		// DONE - add a footerView to the ListView
 		// You can use footer_view.xml to define the footer
 
-		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-		View footerView = inflater.inflate(R.layout.footer_view, placesListView, false);
+		View footerView = getLayoutInflater(savedInstanceState).inflate(R.layout.footer_view, placesListView, false);
 
 		// DONE - footerView must respond to user clicks, handling 3 cases:
 
@@ -70,8 +77,8 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
 		// There is a current location, but the user has already acquired a
 		// PlaceBadge for this location - issue a Toast message with the text -
-		// "You already have this location badge." 
-		// Use the PlaceRecord class' intersects() method to determine whether 
+		// "You already have this location badge."
+		// Use the PlaceRecord class' intersects() method to determine whether
 		// a PlaceBadge already exists for a given location
 
 		// There is a current location for which the user does not already have
@@ -94,7 +101,8 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
 				} else {
 
-					PlaceDownloaderTask downloader = new PlaceDownloaderTask((PlaceViewActivity) view.getContext(), deviceHasNetwork());
+					PlaceDownloaderTask downloader = new PlaceDownloaderTask((PlaceViewFragment)
+							getFragmentManager().findFragmentById(R.id.fragment_place_view), deviceHasNetwork());
 					downloader.execute(mLastLocationReading);
 
 				}
@@ -104,13 +112,13 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 		});
 
 		placesListView.addFooterView(footerView);
-		mAdapter = new PlaceViewAdapter(getApplicationContext());
+		mAdapter = new PlaceViewAdapter(getActivity().getApplicationContext());
 		setListAdapter(mAdapter);
 
 	}
 
 	@Override
-	protected void onResume() {
+	public void onResume() {
 		super.onResume();
 
 		startMockLocationManager();
@@ -129,7 +137,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	}
 
 	@Override
-	protected void onPause() {
+	public void onPause() {
 
 		// DONE - unregister for location updates
 		mLocationManager.removeUpdates(this);
@@ -160,15 +168,15 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 
 		if (place == null) {
 
-			Toast.makeText(getApplicationContext(), R.string.place_badge_unavailable, Toast.LENGTH_LONG).show();
+			Toast.makeText(getActivity().getApplicationContext(), R.string.place_badge_unavailable, Toast.LENGTH_LONG).show();
 
 		} else if (mAdapter.intersects(place.getLocation())) {
 
-			Toast.makeText(getApplicationContext(), R.string.duplicate_location_string, Toast.LENGTH_LONG).show();
+			Toast.makeText(getActivity().getApplicationContext(), R.string.duplicate_location_string, Toast.LENGTH_LONG).show();
 
 		} else if (place.getCountryName() == null || place.getCountryName().isEmpty()) {
 
-			Toast.makeText(getApplicationContext(), R.string.no_country_string, Toast.LENGTH_LONG).show();
+			Toast.makeText(getActivity().getApplicationContext(), R.string.no_country_string, Toast.LENGTH_LONG).show();
 
 		} else {
 
@@ -239,13 +247,6 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.delete_badges:
@@ -274,7 +275,7 @@ public class PlaceViewActivity extends ListActivity implements LocationListener 
 	private void startMockLocationManager() {
 		if (!mMockLocationOn) {
 			mMockLocationProvider = new MockLocationProvider(
-					LocationManager.NETWORK_PROVIDER, this);
+					LocationManager.NETWORK_PROVIDER, getActivity().getApplicationContext());
 		}
 	}
 }

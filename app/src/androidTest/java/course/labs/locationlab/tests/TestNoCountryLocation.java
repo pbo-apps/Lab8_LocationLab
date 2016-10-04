@@ -4,19 +4,20 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.robotium.solo.Solo;
 
-import course.labs.locationlab.PlaceViewActivity;
+import course.labs.locationlab.MainActivity;
+import course.labs.locationlab.PlaceViewFragment;
 
 public class TestNoCountryLocation extends
-		ActivityInstrumentationTestCase2<PlaceViewActivity> {
+		ActivityInstrumentationTestCase2<MainActivity> {
 	private Solo solo;
 
 	public TestNoCountryLocation() {
-		super(PlaceViewActivity.class);
+		super(MainActivity.class);
 	}
 
 	public void setUp() throws Exception {
 		solo = new Solo(getInstrumentation(), getActivity());
-		PlaceViewActivity.useNetwork = false;
+		PlaceViewFragment.useNetwork = false;
 	}
 
 	@Override
@@ -29,8 +30,8 @@ public class TestNoCountryLocation extends
 		int delay = 2000;
 		int longDelay = 5000;
 
-		// Wait for activity: 'course.labs.locationlab.PlaceViewActivity'
-		solo.waitForActivity(course.labs.locationlab.PlaceViewActivity.class,
+		// Wait for activity: 'course.labs.locationlab.MainActivity'
+		solo.waitForActivity(MainActivity.class,
 				delay);
 
 		// Click on action bar item

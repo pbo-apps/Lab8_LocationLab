@@ -42,7 +42,7 @@ public class PlaceDownloaderTask extends AsyncTask<Location, Void, PlaceRecord> 
 	private static String USERNAME = "pbo_apps";
 
 	private HttpURLConnection mHttpUrl;
-	private WeakReference<PlaceViewActivity> mParent;
+	private WeakReference<PlaceViewFragment> mParent;
 	private static Bitmap sStubBitmap = null;
 	private static final Location sMockLoc1 = new Location(
 			LocationManager.NETWORK_PROVIDER);
@@ -53,10 +53,10 @@ public class PlaceDownloaderTask extends AsyncTask<Location, Void, PlaceRecord> 
 	private static String sMockCountryName1, sMockCountryNameInvalid,
 			sMockPlaceName1, sMockPlaceName2, sMockPlaceNameInvalid;
 
-	public PlaceDownloaderTask(PlaceViewActivity parent, boolean hasNetwork) {
+	public PlaceDownloaderTask(PlaceViewFragment parent, boolean hasNetwork) {
 		super();
 
-		mParent = new WeakReference<PlaceViewActivity>(parent);
+		mParent = new WeakReference<PlaceViewFragment>(parent);
 		mHasNetwork = hasNetwork;
 
 		if (null != parent) {

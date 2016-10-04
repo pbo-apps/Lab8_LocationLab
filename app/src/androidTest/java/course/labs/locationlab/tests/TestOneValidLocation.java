@@ -4,20 +4,21 @@ import android.test.ActivityInstrumentationTestCase2;
 
 import com.robotium.solo.Solo;
 
-import course.labs.locationlab.PlaceViewActivity;
+import course.labs.locationlab.MainActivity;
+import course.labs.locationlab.PlaceViewFragment;
 import course.labs.locationlab.R;
 
 public class TestOneValidLocation extends
-		ActivityInstrumentationTestCase2<PlaceViewActivity> {
+		ActivityInstrumentationTestCase2<MainActivity> {
 	private Solo solo;
 
 	public TestOneValidLocation() {
-		super(PlaceViewActivity.class);
+		super(MainActivity.class);
 	}
 
 	public void setUp() throws Exception {
 		solo = new Solo(getInstrumentation(), getActivity());
-		PlaceViewActivity.useNetwork = false;
+		PlaceViewFragment.useNetwork = false;
 	}
 
 	@Override
@@ -30,8 +31,8 @@ public class TestOneValidLocation extends
 		int delay = 2000;
 		int longDelay = 5000;
 
-		// Wait for activity: 'course.labs.locationlab.PlaceViewActivity'
-		solo.waitForActivity(course.labs.locationlab.PlaceViewActivity.class,
+		// Wait for activity: 'course.labs.locationlab.PlaceViewFragment'
+		solo.waitForActivity(MainActivity.class,
 				2000);
 
 		// Click on action bar item

@@ -29,7 +29,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class PlaceDownloaderTask extends AsyncTask<Location, Void, PlaceRecord> {
+class PlaceDownloaderTask extends AsyncTask<Location, Void, PlaceRecord> {
 
 	// False if you don't have network access
 	private boolean mHasNetwork = false;
@@ -39,7 +39,7 @@ public class PlaceDownloaderTask extends AsyncTask<Location, Void, PlaceRecord> 
 
 	// Optional DONE - Put your www.geonames.org account name here if you want to
 	// use the geonames.org web service. To use this service, you must register for a free account.
-	private static String USERNAME = "pbo_apps";
+	private final static String USERNAME = "pbo_apps";
 
 	private HttpURLConnection mHttpUrl;
 	private WeakReference<PlaceViewFragment> mParent;
@@ -53,7 +53,7 @@ public class PlaceDownloaderTask extends AsyncTask<Location, Void, PlaceRecord> 
 	private static String sMockCountryName1, sMockCountryNameInvalid,
 			sMockPlaceName1, sMockPlaceName2, sMockPlaceNameInvalid;
 
-	public PlaceDownloaderTask(PlaceViewFragment parent, boolean hasNetwork) {
+	PlaceDownloaderTask(PlaceViewFragment parent, boolean hasNetwork) {
 		super();
 
 		mParent = new WeakReference<PlaceViewFragment>(parent);
@@ -81,15 +81,16 @@ public class PlaceDownloaderTask extends AsyncTask<Location, Void, PlaceRecord> 
 
 	@Override
 	protected PlaceRecord doInBackground(Location... location) {
-		PlaceRecord place = null;
+		PlaceRecord place;
 
 		if (mHasNetwork) {
 
 			// Get the PlaceBadge information
 			place = getPlaceFromURL(generateURL(USERNAME, location[0]));
 			place.setLocation(location[0]);
+			String countryName = place.getCountryName();
 
-			if ("" != place.getCountryName()) {
+			if (countryName != null && !countryName.isEmpty()) {
 				place.setFlagBitmap(getFlagFromURL(place.getFlagUrl()));
 			} else {
 				place.setFlagBitmap(sStubBitmap);
@@ -136,10 +137,10 @@ public class PlaceDownloaderTask extends AsyncTask<Location, Void, PlaceRecord> 
 			in = new BufferedReader(new InputStreamReader(
 					mHttpUrl.getInputStream()));
 
-			StringBuffer sb = new StringBuffer("");
-			String line = "";
+			StringBuilder sb = new StringBuilder();
+			String line;
 			while ((line = in.readLine()) != null) {
-				sb.append(line + "\n");
+				sb.append(line).append("\n");
 			}
 			result = sb.toString();
 

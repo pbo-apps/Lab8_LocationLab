@@ -15,5 +15,6 @@
     <string name="flag_image_desc_string">Flag Image</string>
     <string name="place_badge_unavailable">PlaceBadge could not be acquired</string>
     <string name="location_not_set">Device location not yet set</string>
+    <string name="google_loc_api_fail">Failed to load Google Location Services API</string>
 
 </resources>

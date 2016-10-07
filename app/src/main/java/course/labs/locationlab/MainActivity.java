@@ -1,5 +1,6 @@
 package course.labs.locationlab;
 
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -12,7 +13,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
-public class MainActivity extends ActionBarActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private PlaceViewFragment mPlaceViewFragment;
     private GoogleApiClient mGoogleApiClient;
@@ -22,13 +23,15 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mPlaceViewFragment = (PlaceViewFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_place_view);
+        if (mPlaceViewFragment == null)
+            mPlaceViewFragment = (PlaceViewFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_place_view);
 
         // Create an instance of GoogleAPIClient
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .enableAutoManage(this /* FragmentActivity */,
                             this /* OnConnectionFailedListener */)
+                    .addConnectionCallbacks(this)
                     .addApi(LocationServices.API)
                     .build();
         }
@@ -56,6 +59,18 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.O
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return mPlaceViewFragment.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        mPlaceViewFragment.setLastLocationReading(lastLocation);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        // TODO - figure out what this should do
     }
 
     @Override

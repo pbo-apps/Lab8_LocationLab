@@ -9,13 +9,9 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -43,7 +39,7 @@ public class PlaceViewFragment extends ListFragment implements LocationListener 
 	// A fake location provider used for testing
 	private MockLocationProvider mMockLocationProvider;
 
-	@Override
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -125,18 +121,21 @@ public class PlaceViewFragment extends ListFragment implements LocationListener 
 
 		// DONE - Check NETWORK_PROVIDER for an existing location reading.
 		Location lastKnownLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if (isFresh(lastKnownLocation))
+            setLastLocationReading(lastKnownLocation);
 
-		// Only keep this last reading if it is fresh - less than 5 minutes old
-		if (lastKnownLocation != null && isFresh(lastKnownLocation)) {
-			mLastLocationReading = lastKnownLocation;
-		}
-
-		// DONE - register to receive location updates from NETWORK_PROVIDER
+        // DONE - register to receive location updates from NETWORK_PROVIDER
 		mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, mMinTime, mMinDistance, this);
         
 	}
 
-	@Override
+    // Function to record our last known location, but only if it's FRESH
+    void setLastLocationReading(Location location) {
+        if (isFresher(location))
+            mLastLocationReading = location;
+    }
+
+    @Override
 	public void onPause() {
 
 		// DONE - unregister for location updates
@@ -190,18 +189,7 @@ public class PlaceViewFragment extends ListFragment implements LocationListener 
 	@Override
 	public void onLocationChanged(Location currentLocation) {
 
-		// DONE - Update location considering the following cases.
-		// 1) If there is no last location, set the last location to the current
-		// location.
-		// 2) If the current location is older than the last location, ignore
-		// the current location
-		// 3) If the current location is newer than the last locations, keep the
-		// current location.
-
-		if (mLastLocationReading == null ||
-				currentLocation.getElapsedRealtimeNanos() >= mLastLocationReading.getElapsedRealtimeNanos()) {
-			mLastLocationReading = currentLocation;
-		}
+		setLastLocationReading(currentLocation);
 
 	}
 
@@ -230,8 +218,23 @@ public class PlaceViewFragment extends ListFragment implements LocationListener 
 
 	// Helper method to determine if a location reading is fresh or not
 	private boolean isFresh(Location location) {
-		return elapsedRealtimeNanos() - location.getElapsedRealtimeNanos() < FIVE_MINS * 1000000;
+        return location != null &&
+                elapsedRealtimeNanos() - location.getElapsedRealtimeNanos() < FIVE_MINS * 1000000;
 	}
+
+    // Helper method to determine if a location reading is more recent than our last known location
+    // DONE - Update location considering the following cases.
+    // 1) If there is no last location, set the last location to the current
+    // location.
+    // 2) If the current location is older than the last location, ignore
+    // the current location
+    // 3) If the current location is newer than the last locations, keep the
+    // current location.
+    private boolean isFresher(Location location) {
+        return location != null
+                && (mLastLocationReading == null ||
+                    location.getElapsedRealtimeNanos() >= mLastLocationReading.getElapsedRealtimeNanos());
+    }
 
 	// Helper method to determine whether or not we are currently connected to the internet
     // Currently only uses Wifi, as downloading little flags over mobile data seems frivolous

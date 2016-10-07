@@ -16,5 +16,6 @@
     <string name="place_badge_unavailable">PlaceBadge could not be acquired</string>
     <string name="location_not_set">Device location not yet set</string>
     <string name="google_loc_api_fail">Failed to load Google Location Services API</string>
+    <string name="mock_location_data_only">Location services disabled: only mock location data will be available</string>
 
 </resources>

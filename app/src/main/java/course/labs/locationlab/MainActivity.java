@@ -17,6 +17,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -26,14 +27,16 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 public class MainActivity extends ActionBarActivity
         implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        ResultCallback<LocationSettingsResult> {
+        ResultCallback<LocationSettingsResult>,
+        LocationListener {
 
-    private static final long FIVE_MINS_MILLIS = 5 * 60 * 1000;
-    private static final long ONE_MIN_MILLIS = 60 * 1000;
+    private static final long REQUIRED_LOC_UPDATE_MILLIS = 30 * 1000;
+    private static final long FASTEST_LOC_UPDATE_MILLIS = 10 * 1000;
     private static final int REQUEST_CHECK_SETTINGS = 1;
 
     private PlaceViewFragment mPlaceViewFragment;
     private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,9 +92,9 @@ public class MainActivity extends ActionBarActivity
 
     // TODO - Refactor this into something a bit nicer
     protected void createLocationRequest() {
-        LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(FIVE_MINS_MILLIS);
-        mLocationRequest.setFastestInterval(ONE_MIN_MILLIS);
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(REQUIRED_LOC_UPDATE_MILLIS);
+        mLocationRequest.setFastestInterval(FASTEST_LOC_UPDATE_MILLIS);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
@@ -123,7 +126,7 @@ public class MainActivity extends ActionBarActivity
             case LocationSettingsStatusCodes.SUCCESS:
                 // All location settings are satisfied. The client can
                 // initialize location requests here.
-                // TODO - Register for location updates here
+                startLocationUpdates();
                 break;
             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                 // Location settings are not satisfied, but this can be fixed
@@ -150,17 +153,26 @@ public class MainActivity extends ActionBarActivity
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         // All required changes were successfully made
-                        // TODO - Register for location updates here
-                        Toast.makeText(this, "We've successfully set the settings!", Toast.LENGTH_LONG).show();
+                        startLocationUpdates();
                         break;
                     case Activity.RESULT_CANCELED:
                         // The user was asked to change settings, but chose not to
-                        Toast.makeText(this, "Nah thanks, no locations for me", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, R.string.mock_location_data_only, Toast.LENGTH_LONG).show();
                         break;
                     default:
                         break;
                 }
                 break;
         }
+    }
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mPlaceViewFragment.setLastLocationReading(location);
     }
 }

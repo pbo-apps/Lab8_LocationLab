@@ -23,7 +23,10 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
-public class MainActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends ActionBarActivity
+        implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        ResultCallback<LocationSettingsResult> {
 
     private static final long FIVE_MINS_MILLIS = 5 * 60 * 1000;
     private static final long ONE_MIN_MILLIS = 60 * 1000;
@@ -98,38 +101,46 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
                         builder.build());
 
-        final Activity callingActivity = this;
+        result.setResultCallback(this);
 
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(@NonNull LocationSettingsResult result) {
-                final Status status = result.getStatus();
-                //final LocationSettingsStates = result.getLocationSettingsStates();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        // All location settings are satisfied. The client can
-                        // initialize location requests here.
-                        // TODO - Register for location updates here
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        // Location settings are not satisfied, but this can be fixed
-                        // by showing the user a dialog.
-                        try {
-                            // Show the dialog by calling startResolutionForResult(),
-                            // and check the result in onActivityResult().
-                            status.startResolutionForResult(callingActivity, REQUEST_CHECK_SETTINGS);
-                        } catch (IntentSender.SendIntentException e) {
-                            // Ignore the error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        // Location settings are not satisfied. However, we have no way
-                        // to fix the settings so we won't show the dialog.
-                        break;
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        // TODO - figure out what this should do
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Toast.makeText(getApplicationContext(), R.string.google_loc_api_fail, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
+        final Status status = locationSettingsResult.getStatus();
+        //final LocationSettingsStates = result.getLocationSettingsStates();
+        switch (status.getStatusCode()) {
+            case LocationSettingsStatusCodes.SUCCESS:
+                // All location settings are satisfied. The client can
+                // initialize location requests here.
+                // TODO - Register for location updates here
+                break;
+            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                // Location settings are not satisfied, but this can be fixed
+                // by showing the user a dialog.
+                try {
+                    // Show the dialog by calling startResolutionForResult(),
+                    // and check the result in onActivityResult().
+                    status.startResolutionForResult(this, REQUEST_CHECK_SETTINGS);
+                } catch (IntentSender.SendIntentException e) {
+                    // Ignore the error.
                 }
-            }
-        });
-
+                break;
+            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                // Location settings are not satisfied. However, we have no way
+                // to fix the settings so we won't show the dialog.
+                break;
+        }
     }
 
     @Override
@@ -151,15 +162,5 @@ public class MainActivity extends ActionBarActivity implements GoogleApiClient.C
                 }
                 break;
         }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        // TODO - figure out what this should do
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(getApplicationContext(), R.string.google_loc_api_fail, Toast.LENGTH_LONG).show();
     }
 }

@@ -95,7 +95,7 @@ public class MainActivity extends ActionBarActivity
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(REQUIRED_LOC_UPDATE_MILLIS);
         mLocationRequest.setFastestInterval(FASTEST_LOC_UPDATE_MILLIS);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
